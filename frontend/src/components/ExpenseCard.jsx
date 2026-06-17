@@ -66,7 +66,7 @@ export default function ExpenseCard({ expense, group, onDelete, onOpen, onUpdate
         </label>
         <SplitOptions members={group.members} draft={draft} setDraft={setDraft} />
         {error && <p className="error">{error}</p>}
-        <div className="toolbar compact expense-actions">
+        <div className="flex gap-2 justify-end mt-4">
           <button type="submit" disabled={draft.splitBetween.length === 0} title="Save expense">
             <Check size={16} />
             Save
@@ -83,17 +83,17 @@ export default function ExpenseCard({ expense, group, onDelete, onOpen, onUpdate
     <article className="expense-card">
       <div className="grid gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <strong>{expense.payer.name}</strong>
-          <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+          <strong className="text-slate-900 dark:text-slate-100">{expense.payer.name}</strong>
+          <span className="rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
             {expense.category}
           </span>
-          <span className="rounded-full bg-neutral-800 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-300">
+          <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-450">
             {expense.splitMethod}
           </span>
         </div>
-        <p>Split between {expense.splitBetween.map((member) => member.name).join(", ")}</p>
+        <p className="text-sm">Split between {expense.splitBetween.map((member) => member.name).join(", ")}</p>
         <button
-          className="w-fit rounded-full border border-neutral-700 bg-neutral-900/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-300"
+          className="w-fit rounded-full border border-indigo-500/20 bg-indigo-500/5 dark:bg-indigo-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-neutral-950 transition-all duration-200 min-height-auto"
           type="button"
           onClick={() => onOpen(expense)}
         >

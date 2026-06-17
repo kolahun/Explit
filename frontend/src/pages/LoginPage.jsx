@@ -139,10 +139,12 @@ export default function LoginPage() {
         </form>
 
         <div className="auth-divider"><span>or continue with</span></div>
-        <GoogleLogin
-          onSuccess={(response) => loginWithGoogle(response.credential).catch((err) => setError(err.message))}
-          onError={() => setError("Google login failed")}
-        />
+        <div className="flex justify-center w-full mt-1">
+          <GoogleLogin
+            onSuccess={(response) => loginWithGoogle(response.credential).catch((err) => setError(err.message))}
+            onError={() => setError("Google login failed")}
+          />
+        </div>
         {error && <p className="error">{error}</p>}
       </section>
     </main>
