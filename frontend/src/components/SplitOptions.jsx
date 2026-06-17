@@ -101,15 +101,15 @@ export default function SplitOptions({ members, draft, setDraft }) {
                     <span className="email">{member.email}</span>
                   </div>
                   {draft.splitMethod === "EXACT" ? (
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3 text-neutral-400 text-sm font-semibold">₹</span>
+                    <div className="flex items-center">
                       <input
-                        className="px-3 pl-6 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
+                        className="px-3 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
                         min="0"
                         step="0.01"
                         type="number"
                         value={entry.amount}
                         onChange={(event) => updateEntry(member._id, "amount", event.target.value)}
+                        placeholder="₹0.00"
                         required
                       />
                     </div>
@@ -122,9 +122,10 @@ export default function SplitOptions({ members, draft, setDraft }) {
                         type="number"
                         value={entry.percentage}
                         onChange={(event) => updateEntry(member._id, "percentage", event.target.value)}
+                        placeholder="0%"
                         required
                       />
-                      <span className="absolute right-3 text-neutral-400 text-sm font-semibold">%</span>
+                      <span className="absolute right-3 text-neutral-400 text-sm font-semibold pointer-events-none">%</span>
                     </div>
                   )}
                 </div>

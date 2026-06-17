@@ -48,14 +48,19 @@ export default function AddExpenseForm({ group, onAdd }) {
       <h2>Add expense</h2>
       <label>
         Amount
-        <input
-          min="0.01"
-          step="0.01"
-          type="number"
-          value={draft.amount}
-          onChange={(e) => setDraft((current) => ({ ...current, amount: e.target.value }))}
-          required
-        />
+        <div className="flex items-center">
+          <input
+            min="0.01"
+            step="0.01"
+            type="number"
+            value={draft.amount}
+            onChange={(e) => setDraft((current) => ({ ...current, amount: e.target.value }))}
+            placeholder="₹0.00"
+            required
+            style={{ width: "100%", padding: "10px", borderRadius: "12px" }}
+            className="border border-neutral-300 dark:border-neutral-600 bg-transparent text-lg"
+          />
+        </div>
       </label>
 
       {/* Multi-payer toggle */}
@@ -94,16 +99,15 @@ export default function AddExpenseForm({ group, onAdd }) {
                   <div className="member-info">
                     <span className="name">{member.name}</span>
                   </div>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 text-neutral-400 text-sm font-semibold">₹</span>
+                  <div className="flex items-center">
                     <input
-                      className="px-3 pl-6 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
+                      className="px-3 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
                       min="0"
                       step="0.01"
                       type="number"
                       value={entry?.amount ?? ""}
                       onChange={(e) => updatePaidByEntry(member._id, e.target.value)}
-                      placeholder="0.00"
+                      placeholder="₹0.00"
                       required
                     />
                   </div>
