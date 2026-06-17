@@ -959,7 +959,13 @@ label {
 .split-methods-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+  .split-methods-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .split-method-btn {

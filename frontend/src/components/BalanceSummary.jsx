@@ -9,7 +9,7 @@ export default function BalanceSummary({ settlementData, currentUser, onSettle }
   if (!currentUser || !settlementData) return null;
 
   const { simplified = [], balances = [] } = settlementData;
-  const userId = currentUser._id;
+  const userId = currentUser._id || currentUser.id;
 
   // Find current user's overall balance
   const userBalanceEntry = balances.find((b) => b.user?._id === userId);
