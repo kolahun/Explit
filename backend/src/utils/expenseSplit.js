@@ -116,8 +116,45 @@ function buildPercentageShares(totalPaise, splitEntries) {
     }));
 }
 
+function buildPaidByEntries(totalPaise, paidByRaw, memberIds) {
+  if (!Array.isArray(paidByRaw) || paidByRaw.length === 0) {
+    return [];
+  }
+
+  const entries = paidByRaw
+    .filter((entry) => {
+      const amt = Number(entry.amount);
+      return Number.isFinite(amt) && amt > 0;
+    })
+    .map((entry) => {
+      const userId = normalizeId(entry.userId);
+      const amountInPaise = parseMoneyToPaise(entry.amount);
+      return {
+        user: userId,
+        amount: paiseToAmount(amountInPaise),
+        amountInPaise
+      };
+    });
+
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const unknownPayers = entries.filter((entry) => !memberIds.includes(entry.user));
+  if (unknownPayers.length > 0) {
+    throw new Error("All payers must belong to the group");
+  }
+
+  const totalPaidPaise = entries.reduce((sum, entry) => sum + entry.amountInPaise, 0);
+  if (totalPaidPaise !== totalPaise) {
+    throw new Error("Paid amounts must add up to the total expense");
+  }
+
+  return entries;
+}
+
 function buildExpensePayload(group, payload) {
-  const { amount, payer, category = "Miscellaneous", splitMethod = "EQUAL", splitBetween = [], splitEntries = [] } = payload;
+  const { amount, payer, category = "Miscellaneous", splitMethod = "EQUAL", splitBetween = [], splitEntries = [], paidBy = [] } = payload;
   const normalizedSplitMethod = String(splitMethod).toUpperCase();
 
   if (!SPLIT_METHODS.includes(normalizedSplitMethod)) {
@@ -150,6 +187,8 @@ function buildExpensePayload(group, payload) {
       : buildPercentageShares(totalPaise, splitEntries);
   }
 
+  const paidByEntries = buildPaidByEntries(totalPaise, paidBy, memberIds);
+
   return {
     payer,
     amount: paiseToAmount(totalPaise),
@@ -157,8 +196,10 @@ function buildExpensePayload(group, payload) {
     category,
     splitMethod: normalizedSplitMethod,
     splitBetween: selectedUserIds,
-    splitShares: shares
+    splitShares: shares,
+    paidBy: paidByEntries
   };
 }
 
 module.exports = { buildExpensePayload, EXPENSE_CATEGORIES, SPLIT_METHODS };
+

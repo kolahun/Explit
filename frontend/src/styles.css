@@ -1089,3 +1089,269 @@ label {
   padding: 8px 12px;
 }
 
+/* ========== Balance Summary Panel ========== */
+.balance-summary-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 24px;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.balance-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+
+.balance-hero.positive {
+  background: var(--color-info-bg);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.balance-hero.negative {
+  background: var(--color-danger-bg);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.balance-hero.settled {
+  background: var(--color-success-bg);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.balance-hero-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.balance-hero.positive .balance-hero-icon {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.balance-hero.negative .balance-hero-icon {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.balance-hero.settled .balance-hero-icon {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.balance-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.balance-hero-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.balance-hero-amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.balance-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.balance-detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.balance-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.balance-detail-heading.positive {
+  color: var(--color-info-text);
+}
+
+.balance-detail-heading.negative {
+  color: var(--color-danger-text);
+}
+
+.balance-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+}
+
+.balance-detail-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.balance-detail-name {
+  font-weight: 600;
+  font-size: 0.925rem;
+  color: var(--text-primary);
+}
+
+.balance-detail-amount {
+  font-weight: 800;
+  font-size: 0.925rem;
+}
+
+.balance-detail-amount.positive {
+  color: var(--color-info-text);
+}
+
+.balance-detail-amount.negative {
+  color: var(--color-danger-text);
+}
+
+.balance-settle-btn {
+  background: var(--color-primary);
+  color: white;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 10px;
+  box-shadow: none;
+  min-height: auto;
+}
+
+.balance-settle-btn:hover {
+  background: var(--color-primary-hover);
+  transform: scale(1.03);
+}
+
+/* ========== Multi-Payer Form ========== */
+.multi-payer-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-direction: row;
+  gap: 12px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.toggle-row:hover {
+  border-color: var(--color-primary);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.toggle-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.paid-by-panel {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.paid-by-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.paid-by-header h3 {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.paid-by-header p {
+  margin: 4px 0 0;
+  color: var(--text-tertiary);
+}
+
+.paid-by-total {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.paid-by-total.matched {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.paid-by-total.mismatched {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Premium Group Grid */
+.premium-group-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* Link resets */
+.premium-card-link {
+  color: inherit;
+  display: block;
+  text-decoration: none;
+}

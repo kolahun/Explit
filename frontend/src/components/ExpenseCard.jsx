@@ -83,7 +83,13 @@ export default function ExpenseCard({ expense, group, onDelete, onOpen, onUpdate
     <article className="expense-card">
       <div className="grid gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <strong className="text-slate-900 dark:text-slate-100">{expense.payer.name}</strong>
+          {Array.isArray(expense.paidBy) && expense.paidBy.length > 0 ? (
+            <strong className="text-slate-900 dark:text-slate-100">
+              {expense.paidBy.map((entry) => `${entry.user?.name || "Unknown"} (${moneyFormatter.format(entry.amount)})`).join(", ")}
+            </strong>
+          ) : (
+            <strong className="text-slate-900 dark:text-slate-100">{expense.payer.name}</strong>
+          )}
           <span className="rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
             {expense.category}
           </span>

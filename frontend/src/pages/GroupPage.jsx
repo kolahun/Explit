@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, UserPlus, X } from "lucide-react";
 import { apiRequest } from "../api/client";
+import { useAuth } from "../context/AuthContext";
 import AppHeader from "../components/AppHeader";
 import AddExpenseForm from "../components/AddExpenseForm";
+import BalanceSummary from "../components/BalanceSummary";
 import ExpenseDetailModal from "../components/ExpenseDetailModal";
 import ExpenseList from "../components/ExpenseList";
 import SpendingByCategoryChart from "../components/SpendingByCategoryChart";
@@ -11,6 +13,7 @@ import SettlementList from "../components/SettlementList";
 
 export default function GroupPage() {
   const { groupId } = useParams();
+  const { user: currentUser } = useAuth();
   const [group, setGroup] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [activeExpenseId, setActiveExpenseId] = useState(null);
@@ -150,6 +153,11 @@ export default function GroupPage() {
 
         <section className="layout">
           <div className="main-column">
+            <BalanceSummary
+              settlementData={settlementData}
+              currentUser={currentUser}
+              onSettle={recordSettlement}
+            />
             <SpendingByCategoryChart expenses={expenses} />
             <section className="panel">
               <h2>Expenses</h2>

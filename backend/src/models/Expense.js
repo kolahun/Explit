@@ -19,6 +19,15 @@ const expenseShareSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const paidBySchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    amount: { type: Number, required: true, min: 0.01 },
+    amountInPaise: { type: Number, required: true, min: 1 }
+  },
+  { _id: false }
+);
+
 const expenseSchema = new mongoose.Schema(
   {
     groupId: { type: mongoose.Schema.Types.ObjectId, ref: "Group", required: true, index: true },
@@ -37,6 +46,7 @@ const expenseSchema = new mongoose.Schema(
     },
     splitBetween: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }],
     splitShares: { type: [expenseShareSchema], default: [] },
+    paidBy: { type: [paidBySchema], default: [] },
     comments: { type: [expenseCommentSchema], default: [] }
   },
   { timestamps: true }

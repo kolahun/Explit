@@ -7,6 +7,7 @@ async function populateExpense(expense) {
   await expense.populate("payer", "name email");
   await expense.populate("splitBetween", "name email");
   await expense.populate("splitShares.user", "name email");
+  await expense.populate("paidBy.user", "name email");
   await expense.populate("comments.user", "name email");
 }
 
@@ -16,6 +17,7 @@ const listExpenses = asyncHandler(async (req, res) => {
     .populate("payer", "name email")
     .populate("splitBetween", "name email")
     .populate("splitShares.user", "name email")
+    .populate("paidBy.user", "name email")
     .populate("comments.user", "name email");
 
   res.json(expenses);

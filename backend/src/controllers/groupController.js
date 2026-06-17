@@ -3,6 +3,7 @@ const Expense = require("../models/Expense");
 const Group = require("../models/Group");
 const Settlement = require("../models/Settlement");
 const User = require("../models/User");
+const { computeBalances } = require("../utils/balanceComputer");
 
 const listGroups = asyncHandler(async (req, res) => {
   const groups = await Group.find({ members: req.user._id }).populate("members", "name email");
@@ -12,12 +13,21 @@ const listGroups = asyncHandler(async (req, res) => {
   ]);
   const totalsByGroup = new Map(totals.map((item) => [item._id.toString(), item.totalExpense]));
 
-  res.json(
-    groups.map((group) => ({
-      ...group.toObject(),
-      totalExpense: totalsByGroup.get(group._id.toString()) || 0
-    }))
+  const currentUserId = req.user._id.toString();
+  const groupsWithBalances = await Promise.all(
+    groups.map(async (group) => {
+      const balances = await computeBalances(group._id, group.members.map((m) => m._id || m));
+      const userBalance = balances.find((b) => b.userId === currentUserId);
+
+      return {
+        ...group.toObject(),
+        totalExpense: totalsByGroup.get(group._id.toString()) || 0,
+        netBalance: userBalance ? userBalance.balance : 0
+      };
+    })
   );
+
+  res.json(groupsWithBalances);
 });
 
 const createGroup = asyncHandler(async (req, res) => {
