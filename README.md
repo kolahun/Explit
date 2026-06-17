@@ -1,4 +1,4 @@
-# Explit
+# Expense Splitter
 
 A production-oriented MERN stack app for tracking shared group expenses and computing simplified settlement transactions with a greedy max-creditor/max-debtor algorithm.
 
@@ -154,7 +154,7 @@ npm run install:all
 cp backend/.env.example backend/.env
 ```
 
-Set `MONGO_URI`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, and Gmail SMTP values. For Gmail, create an app password from your Google account security settings.
+Set `MONGO_URI`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, and `CLIENT_URLS`. Optional Gmail SMTP values enable expense notification emails. For Gmail, create an app password from your Google account security settings.
 
 3. Create frontend env:
 
@@ -162,7 +162,7 @@ Set `MONGO_URI`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, and Gmail SMTP values. For Gm
 cp frontend/.env.example frontend/.env
 ```
 
-Set the same Google OAuth client ID in `VITE_GOOGLE_CLIENT_ID`.
+Set `VITE_GOOGLE_CLIENT_ID` and `VITE_API_URL`.
 
 4. Start the backend:
 
@@ -197,7 +197,36 @@ Covered scenarios:
 
 ## Deployment Notes
 
-- Backend can deploy to Render using `backend` as the root directory and `npm start`.
-- Frontend can deploy to Vercel using `frontend` as the root directory and `npm run build`.
+### Backend on Render
+
+- Root directory: `backend`
+- Build command: `npm install`
+- Start command: `npm start`
+- Required env: `MONGO_URI`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, `CLIENT_URLS`
+- Optional env: `SMTP_EMAIL`, `SMTP_APP_PASSWORD`, `EMAIL_FROM`
+
+Example `CLIENT_URLS`:
+
+```text
+http://localhost:5173,https://your-frontend-domain.vercel.app
+```
+
+### Frontend on Vercel
+
+- Root directory: `frontend`
+- Build command: `npm run build`
+- Output directory: `dist`
+- Required env: `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`
+
+Example `VITE_API_URL`:
+
+```text
+https://your-backend-service.onrender.com/api
+```
+
+### Shared Deployment Checklist
+
 - Use MongoDB Atlas for `MONGO_URI`.
-- Configure OAuth authorized JavaScript origins and redirect origins for local and deployed frontend URLs.
+- Configure Google OAuth authorized JavaScript origins for both local and deployed frontend URLs.
+- Add your deployed frontend URL to backend `CLIENT_URLS`.
+- If Render sleeps on the free tier, expect the first API request after idle time to be slower.
