@@ -108,7 +108,6 @@ export default function AddExpenseForm({ group, onAdd }) {
                       value={entry?.amount ?? ""}
                       onChange={(e) => updatePaidByEntry(member._id, e.target.value)}
                       placeholder="₹0.00"
-                      required
                     />
                   </div>
                 </div>
