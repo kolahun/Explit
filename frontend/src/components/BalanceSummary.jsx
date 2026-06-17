@@ -35,13 +35,21 @@ export default function BalanceSummary({ settlementData, currentUser, onSettle }
         </div>
         <div className="balance-hero-content">
           <span className="balance-hero-label">
-            {isSettled ? "All settled up!" : netBalance > 0 ? "People owe you" : "You owe"}
+            {isSettled 
+              ? (simplified.length === 0 ? "All settled up!" : "You are settled up") 
+              : netBalance > 0 ? "People owe you" : "You owe"}
           </span>
           <span className="balance-hero-amount">
             {isSettled ? "₹0" : moneyFormatter.format(Math.abs(netBalance))}
           </span>
         </div>
       </div>
+
+      {isSettled && simplified.length > 0 && (
+        <p className="text-sm text-neutral-500 font-medium px-2">
+          You have no pending balances, but other members still owe each other.
+        </p>
+      )}
 
       {/* Detailed breakdown */}
       {!isSettled && (
