@@ -98,6 +98,15 @@ export function buildExpensePayload(draft) {
   } else {
     payload.splitEntries = draft.splitEntries
       .filter((entry) => draft.splitBetween.includes(entry.userId))
+      .filter((entry) => {
+        if (draft.splitMethod === "EXACT") {
+          return Number(entry.amount) > 0;
+        }
+        if (draft.splitMethod === "PERCENTAGE") {
+          return Number(entry.percentage) > 0;
+        }
+        return false;
+      })
       .map((entry) => ({
         userId: entry.userId,
         ...(draft.splitMethod === "EXACT"

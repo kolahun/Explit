@@ -109,8 +109,8 @@ export default function SplitOptions({ members, draft, setDraft }) {
                         type="number"
                         value={entry.amount}
                         onChange={(event) => updateEntry(member._id, "amount", event.target.value)}
+                        onWheel={(e) => e.target.blur()}
                         placeholder="₹0.00"
-                        required
                       />
                     </div>
                   ) : (
@@ -122,8 +122,8 @@ export default function SplitOptions({ members, draft, setDraft }) {
                         type="number"
                         value={entry.percentage}
                         onChange={(event) => updateEntry(member._id, "percentage", event.target.value)}
+                        onWheel={(e) => e.target.blur()}
                         placeholder="0%"
-                        required
                       />
                       <span className="absolute right-3 text-neutral-400 text-sm font-semibold pointer-events-none">%</span>
                     </div>

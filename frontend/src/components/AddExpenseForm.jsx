@@ -55,6 +55,7 @@ export default function AddExpenseForm({ group, onAdd }) {
             type="number"
             value={draft.amount}
             onChange={(e) => setDraft((current) => ({ ...current, amount: e.target.value }))}
+            onWheel={(e) => e.target.blur()}
             placeholder="₹0.00"
             required
             style={{ width: "100%", padding: "10px", borderRadius: "12px" }}
@@ -107,6 +108,7 @@ export default function AddExpenseForm({ group, onAdd }) {
                       type="number"
                       value={entry?.amount ?? ""}
                       onChange={(e) => updatePaidByEntry(member._id, e.target.value)}
+                      onWheel={(e) => e.target.blur()}
                       placeholder="₹0.00"
                     />
                   </div>
