@@ -4,13 +4,16 @@ import { ArrowLeft, UserPlus, X } from "lucide-react";
 import { apiRequest } from "../api/client";
 import AppHeader from "../components/AppHeader";
 import AddExpenseForm from "../components/AddExpenseForm";
+import ExpenseDetailModal from "../components/ExpenseDetailModal";
 import ExpenseList from "../components/ExpenseList";
+import SpendingByCategoryChart from "../components/SpendingByCategoryChart";
 import SettlementList from "../components/SettlementList";
 
 export default function GroupPage() {
   const { groupId } = useParams();
   const [group, setGroup] = useState(null);
   const [expenses, setExpenses] = useState([]);
+  const [activeExpenseId, setActiveExpenseId] = useState(null);
   const [settlementData, setSettlementData] = useState({ simplified: [], history: [], balances: [] });
   const [memberEmail, setMemberEmail] = useState("");
   const [error, setError] = useState("");
@@ -31,6 +34,16 @@ export default function GroupPage() {
     loadGroupData().catch((err) => setError(err.message));
   }, [groupId]);
 
+  useEffect(() => {
+    if (!activeExpenseId) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      loadGroupData().catch((err) => setError(err.message));
+    }, 10000);
+
+    return () => window.clearInterval(intervalId);
+  }, [activeExpenseId, groupId]);
+
   async function addExpense(payload) {
     await apiRequest("/expenses", {
       method: "POST",
@@ -49,6 +62,17 @@ export default function GroupPage() {
 
   async function deleteExpense(expenseId) {
     await apiRequest(`/expenses/${expenseId}?groupId=${groupId}`, { method: "DELETE" });
+    if (activeExpenseId === expenseId) {
+      setActiveExpenseId(null);
+    }
+    await loadGroupData();
+  }
+
+  async function addComment(expenseId, text) {
+    await apiRequest(`/expenses/${expenseId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ groupId, text })
+    });
     await loadGroupData();
   }
 
@@ -110,6 +134,8 @@ export default function GroupPage() {
     );
   }
 
+  const activeExpense = expenses.find((expense) => expense._id === activeExpenseId) || null;
+
   return (
     <>
       <AppHeader />
@@ -124,9 +150,16 @@ export default function GroupPage() {
 
         <section className="layout">
           <div className="main-column">
+            <SpendingByCategoryChart expenses={expenses} />
             <section className="panel">
               <h2>Expenses</h2>
-              <ExpenseList expenses={expenses} group={group} onDelete={deleteExpense} onUpdate={updateExpense} />
+              <ExpenseList
+                expenses={expenses}
+                group={group}
+                onDelete={deleteExpense}
+                onOpenExpense={(expense) => setActiveExpenseId(expense._id)}
+                onUpdate={updateExpense}
+              />
             </section>
           </div>
           <aside className="side-column">
@@ -165,6 +198,13 @@ export default function GroupPage() {
           </aside>
         </section>
       </main>
+      {activeExpense && (
+        <ExpenseDetailModal
+          expense={activeExpense}
+          onClose={() => setActiveExpenseId(null)}
+          onAddComment={addComment}
+        />
+      )}
     </>
   );
 }

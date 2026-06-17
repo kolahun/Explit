@@ -2,28 +2,52 @@ const asyncHandler = require("express-async-handler");
 const Expense = require("../models/Expense");
 const Settlement = require("../models/Settlement");
 const { simplifyDebts } = require("../utils/debtSimplifier");
+const { parseMoneyToPaise, paiseToAmount } = require("../utils/money");
 
-function addBalance(balances, userId, delta) {
-  balances.set(userId, Number(((balances.get(userId) || 0) + delta).toFixed(2)));
+function addBalance(balancePaiseByUser, userId, deltaPaise) {
+  balancePaiseByUser.set(userId, (balancePaiseByUser.get(userId) || 0) + deltaPaise);
+}
+
+function getExpenseShares(expense) {
+  if (Array.isArray(expense.splitShares) && expense.splitShares.length > 0) {
+    return expense.splitShares.map((share) => ({
+      userId: share.user.toString(),
+      amountInPaise: share.amountInPaise
+    }));
+  }
+
+  const totalPaise = expense.amountInPaise || parseMoneyToPaise(expense.amount);
+  const splitMembers = expense.splitBetween || [];
+  const baseSharePaise = Math.floor(totalPaise / splitMembers.length);
+  const remainderPaise = totalPaise % splitMembers.length;
+
+  return splitMembers.map((memberId, index) => ({
+    userId: memberId.toString(),
+    amountInPaise: baseSharePaise + (index < remainderPaise ? 1 : 0)
+  }));
 }
 
 async function computeBalances(groupId, memberIds) {
-  const balances = new Map(memberIds.map((id) => [id.toString(), 0]));
+  const balancePaiseByUser = new Map(memberIds.map((id) => [id.toString(), 0]));
   const expenses = await Expense.find({ groupId });
   const settledPayments = await Settlement.find({ groupId, status: "settled" });
 
   expenses.forEach((expense) => {
-    const share = Number((expense.amount / expense.splitBetween.length).toFixed(2));
-    addBalance(balances, expense.payer.toString(), expense.amount);
-    expense.splitBetween.forEach((memberId) => addBalance(balances, memberId.toString(), -share));
+    const expenseAmountPaise = expense.amountInPaise || parseMoneyToPaise(expense.amount);
+    addBalance(balancePaiseByUser, expense.payer.toString(), expenseAmountPaise);
+    getExpenseShares(expense).forEach((share) => addBalance(balancePaiseByUser, share.userId, -share.amountInPaise));
   });
 
   settledPayments.forEach((settlement) => {
-    addBalance(balances, settlement.fromUser.toString(), settlement.amount);
-    addBalance(balances, settlement.toUser.toString(), -settlement.amount);
+    const settlementPaise = parseMoneyToPaise(settlement.amount);
+    addBalance(balancePaiseByUser, settlement.fromUser.toString(), settlementPaise);
+    addBalance(balancePaiseByUser, settlement.toUser.toString(), -settlementPaise);
   });
 
-  return Array.from(balances.entries()).map(([userId, balance]) => ({ userId, balance }));
+  return Array.from(balancePaiseByUser.entries()).map(([userId, balancePaise]) => ({
+    userId,
+    balance: paiseToAmount(balancePaise)
+  }));
 }
 
 const getSettlements = asyncHandler(async (req, res) => {

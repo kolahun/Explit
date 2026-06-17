@@ -1,40 +1,47 @@
 const asyncHandler = require("express-async-handler");
 const Expense = require("../models/Expense");
 const { sendExpenseCreatedEmail } = require("../services/emailService");
+const { buildExpensePayload } = require("../utils/expenseSplit");
+
+async function populateExpense(expense) {
+  await expense.populate("payer", "name email");
+  await expense.populate("splitBetween", "name email");
+  await expense.populate("splitShares.user", "name email");
+  await expense.populate("comments.user", "name email");
+}
 
 const listExpenses = asyncHandler(async (req, res) => {
   const expenses = await Expense.find({ groupId: req.group._id })
     .sort({ createdAt: -1 })
     .populate("payer", "name email")
-    .populate("splitBetween", "name email");
+    .populate("splitBetween", "name email")
+    .populate("splitShares.user", "name email")
+    .populate("comments.user", "name email");
 
   res.json(expenses);
 });
 
 const addExpense = asyncHandler(async (req, res) => {
-  const { amount, payer, splitBetween } = req.body;
-  if (!amount || !payer || !Array.isArray(splitBetween) || splitBetween.length === 0) {
+  const { payer } = req.body;
+  if (!payer) {
     res.status(400);
-    throw new Error("amount, payer, and splitBetween are required");
+    throw new Error("payer is required");
   }
 
-  const memberIds = req.group.members.map((id) => id.toString());
-  const selectedIds = splitBetween.map(String);
-
-  if (!memberIds.includes(String(payer)) || selectedIds.some((id) => !memberIds.includes(id))) {
+  let expensePayload;
+  try {
+    expensePayload = buildExpensePayload(req.group, req.body);
+  } catch (error) {
     res.status(400);
-    throw new Error("Payer and split members must belong to the group");
+    throw error;
   }
 
   const expense = await Expense.create({
     groupId: req.group._id,
-    payer,
-    amount: Number(amount),
-    splitBetween: selectedIds
+    ...expensePayload
   });
 
-  await expense.populate("payer", "name email");
-  await expense.populate("splitBetween", "name email");
+  await populateExpense(expense);
   await req.group.populate("members", "name email");
 
   const recipients = req.group.members
@@ -51,27 +58,10 @@ const addExpense = asyncHandler(async (req, res) => {
   res.status(201).json(expense);
 });
 
-function validateExpenseMembers(group, payer, splitBetween) {
-  const memberIds = group.members.map((id) => id.toString());
-  const selectedIds = splitBetween.map(String);
-
-  if (!memberIds.includes(String(payer)) || selectedIds.some((id) => !memberIds.includes(id))) {
-    return false;
-  }
-
-  return true;
-}
-
 const updateExpense = asyncHandler(async (req, res) => {
-  const { amount, payer, splitBetween } = req.body;
-  if (!amount || !payer || !Array.isArray(splitBetween) || splitBetween.length === 0) {
+  if (!req.body.payer) {
     res.status(400);
-    throw new Error("amount, payer, and splitBetween are required");
-  }
-
-  if (!validateExpenseMembers(req.group, payer, splitBetween)) {
-    res.status(400);
-    throw new Error("Payer and split members must belong to the group");
+    throw new Error("payer is required");
   }
 
   const expense = await Expense.findOne({ _id: req.params.expenseId, groupId: req.group._id });
@@ -80,12 +70,17 @@ const updateExpense = asyncHandler(async (req, res) => {
     throw new Error("Expense not found");
   }
 
-  expense.amount = Number(amount);
-  expense.payer = payer;
-  expense.splitBetween = splitBetween.map(String);
+  let expensePayload;
+  try {
+    expensePayload = buildExpensePayload(req.group, req.body);
+  } catch (error) {
+    res.status(400);
+    throw error;
+  }
+
+  Object.assign(expense, expensePayload);
   await expense.save();
-  await expense.populate("payer", "name email");
-  await expense.populate("splitBetween", "name email");
+  await populateExpense(expense);
 
   res.json(expense);
 });
@@ -100,4 +95,27 @@ const deleteExpense = asyncHandler(async (req, res) => {
   res.json({ id: expense._id });
 });
 
-module.exports = { listExpenses, addExpense, updateExpense, deleteExpense };
+const addComment = asyncHandler(async (req, res) => {
+  const { text } = req.body;
+  if (!text || !text.trim()) {
+    res.status(400);
+    throw new Error("Comment text is required");
+  }
+
+  const expense = await Expense.findOne({ _id: req.params.expenseId, groupId: req.group._id });
+  if (!expense) {
+    res.status(404);
+    throw new Error("Expense not found");
+  }
+
+  expense.comments.push({
+    user: req.user._id,
+    text: text.trim()
+  });
+
+  await expense.save();
+  await populateExpense(expense);
+  res.status(201).json(expense);
+});
+
+module.exports = { listExpenses, addExpense, updateExpense, deleteExpense, addComment };

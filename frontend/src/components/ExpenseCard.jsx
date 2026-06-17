@@ -1,28 +1,20 @@
 import { Check, Pencil, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import SplitOptions from "./SplitOptions";
+import { buildExpensePayload, createExpenseDraftFromExpense, EXPENSE_CATEGORIES } from "../utils/expenseForm";
 
 const moneyFormatter = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR"
 });
 
-export default function ExpenseCard({ expense, group, onDelete, onUpdate }) {
+export default function ExpenseCard({ expense, group, onDelete, onOpen, onUpdate }) {
   const [editing, setEditing] = useState(false);
-  const [amount, setAmount] = useState(expense.amount.toString());
-  const [payer, setPayer] = useState(expense.payer._id);
-  const [splitBetween, setSplitBetween] = useState(expense.splitBetween.map((member) => member._id));
+  const [draft, setDraft] = useState(() => createExpenseDraftFromExpense(expense, group));
   const [error, setError] = useState("");
 
-  function toggleMember(memberId) {
-    setSplitBetween((current) =>
-      current.includes(memberId) ? current.filter((id) => id !== memberId) : [...current, memberId]
-    );
-  }
-
   function cancelEdit() {
-    setAmount(expense.amount.toString());
-    setPayer(expense.payer._id);
-    setSplitBetween(expense.splitBetween.map((member) => member._id));
+    setDraft(createExpenseDraftFromExpense(expense, group));
     setError("");
     setEditing(false);
   }
@@ -31,7 +23,7 @@ export default function ExpenseCard({ expense, group, onDelete, onUpdate }) {
     event.preventDefault();
     setError("");
     try {
-      await onUpdate(expense._id, { amount: Number(amount), payer, splitBetween });
+      await onUpdate(expense._id, buildExpensePayload(draft));
       setEditing(false);
     } catch (err) {
       setError(err.message);
@@ -43,11 +35,18 @@ export default function ExpenseCard({ expense, group, onDelete, onUpdate }) {
       <form className="expense-card expense-editor" onSubmit={saveEdit}>
         <label>
           Amount
-          <input min="0.01" step="0.01" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+          <input
+            min="0.01"
+            step="0.01"
+            type="number"
+            value={draft.amount}
+            onChange={(e) => setDraft((current) => ({ ...current, amount: e.target.value }))}
+            required
+          />
         </label>
         <label>
           Payer
-          <select value={payer} onChange={(e) => setPayer(e.target.value)} required>
+          <select value={draft.payer} onChange={(e) => setDraft((current) => ({ ...current, payer: e.target.value }))} required>
             {group.members.map((member) => (
               <option key={member._id} value={member._id}>
                 {member.name}
@@ -55,24 +54,20 @@ export default function ExpenseCard({ expense, group, onDelete, onUpdate }) {
             ))}
           </select>
         </label>
-        <fieldset>
-          <legend>Split equally</legend>
-          <div className="checkbox-grid">
-            {group.members.map((member) => (
-              <label key={member._id} className="checkbox-row">
-                <input
-                  type="checkbox"
-                  checked={splitBetween.includes(member._id)}
-                  onChange={() => toggleMember(member._id)}
-                />
-                {member.name}
-              </label>
+        <label>
+          Category
+          <select value={draft.category} onChange={(e) => setDraft((current) => ({ ...current, category: e.target.value }))}>
+            {EXPENSE_CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
-          </div>
-        </fieldset>
+          </select>
+        </label>
+        <SplitOptions members={group.members} draft={draft} setDraft={setDraft} />
         {error && <p className="error">{error}</p>}
         <div className="toolbar compact expense-actions">
-          <button type="submit" disabled={splitBetween.length === 0} title="Save expense">
+          <button type="submit" disabled={draft.splitBetween.length === 0} title="Save expense">
             <Check size={16} />
             Save
           </button>
@@ -86,9 +81,24 @@ export default function ExpenseCard({ expense, group, onDelete, onUpdate }) {
 
   return (
     <article className="expense-card">
-      <div>
-        <strong>{expense.payer.name}</strong>
+      <div className="grid gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <strong>{expense.payer.name}</strong>
+          <span className="rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+            {expense.category}
+          </span>
+          <span className="rounded-full bg-neutral-800 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-300">
+            {expense.splitMethod}
+          </span>
+        </div>
         <p>Split between {expense.splitBetween.map((member) => member.name).join(", ")}</p>
+        <button
+          className="w-fit rounded-full border border-neutral-700 bg-neutral-900/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-300"
+          type="button"
+          onClick={() => onOpen(expense)}
+        >
+          View details & comments
+        </button>
       </div>
       <div className="expense-summary">
         <div className="amount">{moneyFormatter.format(expense.amount)}</div>
