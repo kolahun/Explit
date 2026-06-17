@@ -97,13 +97,14 @@ export default function AddExpenseForm({ group, onAdd }) {
                   <div className="relative flex items-center">
                     <span className="absolute left-3 text-neutral-400 text-sm font-semibold">₹</span>
                     <input
-                      className="pl-6 w-[120px]"
+                      className="px-3 pl-6 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
                       min="0"
                       step="0.01"
                       type="number"
-                      placeholder="0.00"
                       value={entry?.amount ?? ""}
                       onChange={(e) => updatePaidByEntry(member._id, e.target.value)}
+                      placeholder="0.00"
+                      required
                     />
                   </div>
                 </div>

@@ -1092,7 +1092,18 @@ label {
 
 .allocation-row input {
   width: 120px;
-  padding: 8px 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Hide number input spinners to prevent scroll changing the value */
+.allocation-row input[type="number"]::-webkit-outer-spin-button,
+.allocation-row input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.allocation-row input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 /* ========== Balance Summary Panel ========== */
