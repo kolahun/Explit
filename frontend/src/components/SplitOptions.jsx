@@ -39,7 +39,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
               className={`flex-1 text-xs font-bold uppercase tracking-wider py-2.5 px-2 rounded-lg transition-all ${
                 isActive
                   ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-slate-700/50"
+                  : "bg-transparent shadow-none text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-slate-700/50"
               }`}
             >
               {option.label}
