@@ -1,8 +1,9 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { Navigate } from "react-router-dom";
 import { useState } from "react";
-import { ArrowRight, LockKeyhole, Mail, UserPlus, WalletCards } from "lucide-react";
+import { ArrowRight, LockKeyhole, Mail, UserPlus, WalletCards, Sun, Moon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 export default function LoginPage() {
   const { user, loginWithGoogle, loginWithPassword, registerWithPassword } = useAuth();
@@ -42,8 +43,20 @@ export default function LoginPage() {
     setError("");
   }
 
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
-    <main className="login-page">
+    <main className="login-page relative">
+      <button 
+        className="absolute top-6 right-6 p-2 rounded-full bg-neutral-200/50 dark:bg-slate-800/50 hover:bg-neutral-300/50 dark:hover:bg-slate-700/50 transition-colors text-neutral-600 dark:text-neutral-400" 
+        onClick={toggleTheme} 
+        title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+        style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100 }}
+      >
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
       <section className="login-hero" aria-label="Explit overview">
         <div className="login-brand-mark">
           <WalletCards size={28} />

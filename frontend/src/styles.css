@@ -42,7 +42,7 @@
   
   --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(226, 232, 240, 0.8);
-  --glass-blur: blur(16px);
+  --glass-blur: blur(8px);
   
   color: var(--text-primary);
   background: var(--bg-primary);
@@ -86,7 +86,7 @@
   
   --glass-bg: rgba(12, 16, 31, 0.8);
   --glass-border: rgba(30, 41, 59, 0.7);
-  --glass-blur: blur(20px);
+  --glass-blur: blur(10px);
   
   color: var(--text-primary);
   background: var(--bg-primary);
@@ -337,7 +337,7 @@ label {
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   backdrop-filter: var(--glass-blur);
   padding: 2px;
 }
