@@ -187,7 +187,7 @@ export default function GroupPage() {
                 </button>
               </form>
               {memberError && <p className="error">{memberError}</p>}
-              <div className="member-list">
+              <div className="member-list scrollable-list">
                 {group.members.map((member) => (
                   <div className="member-row" key={member._id}>
                     <span>{member.name}</span>

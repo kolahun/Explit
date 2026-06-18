@@ -59,7 +59,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
           </span>
         </div>
 
-        <div className="member-checkbox-grid">
+        <div className="member-checkbox-grid scrollable-list">
           {members.map((member) => {
             const checked = draft.splitBetween.includes(member._id);
 
@@ -89,7 +89,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
             </p>
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid gap-3 scrollable-list">
             {activeEntries.map((entry) => {
               const member = members.find((item) => item._id === entry.userId);
               if (!member) return null;

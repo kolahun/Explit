@@ -8,7 +8,7 @@ export default function SettlementList({ settlements, history, onSettle }) {
       {visibleSettlements.length === 0 ? (
         <p className="empty">Everyone is settled.</p>
       ) : (
-        <div className="stack">
+        <div className="stack scrollable-list">
           {visibleSettlements.map((item) => (
             <div className="settlement-row" key={`${item.fromUser._id}-${item.toUser._id}-${item.amount}`}>
               <span>
@@ -23,7 +23,7 @@ export default function SettlementList({ settlements, history, onSettle }) {
       {visibleHistory.length === 0 ? (
         <p className="empty">No settlements recorded.</p>
       ) : (
-        <div className="stack compact">
+        <div className="stack compact scrollable-list">
           {visibleHistory.map((item) => (
             <div className="history-row" key={item._id}>
               <span>

@@ -92,7 +92,7 @@ export default function AddExpenseForm({ group, onAdd }) {
               </span>
             )}
           </div>
-          <div className="grid gap-3">
+          <div className="grid gap-3 scrollable-list">
             {group.members.map((member) => {
               const entry = (draft.paidByEntries || []).find((e) => e.userId === member._id);
               return (
