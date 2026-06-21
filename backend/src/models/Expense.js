@@ -52,4 +52,7 @@ const expenseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Compound index: listExpenses always queries by groupId and sorts by createdAt
+expenseSchema.index({ groupId: 1, createdAt: -1 });
+
 module.exports = mongoose.model("Expense", expenseSchema);

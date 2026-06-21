@@ -7,25 +7,91 @@ const { computeBalances } = require("../utils/balanceComputer");
 
 const listGroups = asyncHandler(async (req, res) => {
   const groups = await Group.find({ members: req.user._id }).populate("members", "name email");
-  const totals = await Expense.aggregate([
-    { $match: { groupId: { $in: groups.map((group) => group._id) } } },
-    { $group: { _id: "$groupId", totalExpense: { $sum: "$amount" } } }
-  ]);
-  const totalsByGroup = new Map(totals.map((item) => [item._id.toString(), item.totalExpense]));
 
+  if (groups.length === 0) {
+    return res.json([]);
+  }
+
+  const groupIds = groups.map((g) => g._id);
   const currentUserId = req.user._id.toString();
-  const groupsWithBalances = await Promise.all(
-    groups.map(async (group) => {
-      const balances = await computeBalances(group._id, group.members.map((m) => m._id || m));
-      const userBalance = balances.find((b) => b.userId === currentUserId);
 
-      return {
-        ...group.toObject(),
-        totalExpense: totalsByGroup.get(group._id.toString()) || 0,
-        netBalance: userBalance ? userBalance.balance : 0
-      };
-    })
-  );
+  // Bulk fetch: all expenses and settled settlements for all groups in 2 queries (not 2×N)
+  const [allExpenses, allSettlements, totalsAgg] = await Promise.all([
+    require("../models/Expense").find({ groupId: { $in: groupIds } }).lean(),
+    require("../models/Settlement").find({ groupId: { $in: groupIds }, status: "settled" }).lean(),
+    require("../models/Expense").aggregate([
+      { $match: { groupId: { $in: groupIds } } },
+      { $group: { _id: "$groupId", totalExpense: { $sum: "$amount" } } }
+    ])
+  ]);
+
+  const { parseMoneyToPaise, paiseToAmount } = require("../utils/money");
+  const totalsByGroup = new Map(totalsAgg.map((t) => [t._id.toString(), t.totalExpense]));
+
+  // Group expenses and settlements by groupId for O(1) lookup
+  const expensesByGroup = new Map();
+  const settlementsByGroup = new Map();
+  for (const exp of allExpenses) {
+    const key = exp.groupId.toString();
+    if (!expensesByGroup.has(key)) expensesByGroup.set(key, []);
+    expensesByGroup.get(key).push(exp);
+  }
+  for (const s of allSettlements) {
+    const key = s.groupId.toString();
+    if (!settlementsByGroup.has(key)) settlementsByGroup.set(key, []);
+    settlementsByGroup.get(key).push(s);
+  }
+
+  const groupsWithBalances = groups.map((group) => {
+    const gid = group._id.toString();
+    const expenses = expensesByGroup.get(gid) || [];
+    const settlements = settlementsByGroup.get(gid) || [];
+    const members = group.members;
+
+    // Compute this group's balance in JS (no extra DB hit)
+    const balancePaise = new Map(members.map((m) => [m._id.toString(), 0]));
+    for (const exp of expenses) {
+      const totalPaise = exp.amountInPaise || parseMoneyToPaise(exp.amount);
+      if (Array.isArray(exp.paidBy) && exp.paidBy.length > 0) {
+        for (const entry of exp.paidBy) {
+          const uid = entry.user.toString();
+          balancePaise.set(uid, (balancePaise.get(uid) || 0) + entry.amountInPaise);
+        }
+      } else {
+        const uid = exp.payer.toString();
+        balancePaise.set(uid, (balancePaise.get(uid) || 0) + totalPaise);
+      }
+      // Debit splits
+      if (Array.isArray(exp.splitShares) && exp.splitShares.length > 0) {
+        for (const share of exp.splitShares) {
+          const uid = share.user.toString();
+          balancePaise.set(uid, (balancePaise.get(uid) || 0) - share.amountInPaise);
+        }
+      } else {
+        const splitMembers = exp.splitBetween || [];
+        const base = Math.floor(totalPaise / splitMembers.length);
+        const rem = totalPaise % splitMembers.length;
+        splitMembers.forEach((mid, i) => {
+          const uid = mid.toString();
+          balancePaise.set(uid, (balancePaise.get(uid) || 0) - base - (i < rem ? 1 : 0));
+        });
+      }
+    }
+    for (const s of settlements) {
+      const sp = parseMoneyToPaise(s.amount);
+      const fu = s.fromUser.toString();
+      const tu = s.toUser.toString();
+      balancePaise.set(fu, (balancePaise.get(fu) || 0) + sp);
+      balancePaise.set(tu, (balancePaise.get(tu) || 0) - sp);
+    }
+
+    const userBalancePaise = balancePaise.get(currentUserId) || 0;
+    return {
+      ...group.toObject(),
+      totalExpense: totalsByGroup.get(gid) || 0,
+      netBalance: paiseToAmount(userBalancePaise)
+    };
+  });
 
   res.json(groupsWithBalances);
 });

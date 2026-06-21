@@ -8,6 +8,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(Boolean(localStorage.getItem("expenseSplitterToken")));
 
   useEffect(() => {
+    // Warm up the server immediately so it's ready when the user logs in
+    apiRequest("/health").catch(() => {});
+
     const token = localStorage.getItem("expenseSplitterToken");
     if (!token) return;
 

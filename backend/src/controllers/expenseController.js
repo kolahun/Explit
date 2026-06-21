@@ -4,11 +4,13 @@ const { sendExpenseCreatedEmail } = require("../services/emailService");
 const { buildExpensePayload } = require("../utils/expenseSplit");
 
 async function populateExpense(expense) {
-  await expense.populate("payer", "name email");
-  await expense.populate("splitBetween", "name email");
-  await expense.populate("splitShares.user", "name email");
-  await expense.populate("paidBy.user", "name email");
-  await expense.populate("comments.user", "name email");
+  await expense.populate([
+    { path: "payer", select: "name email" },
+    { path: "splitBetween", select: "name email" },
+    { path: "splitShares.user", select: "name email" },
+    { path: "paidBy.user", select: "name email" },
+    { path: "comments.user", select: "name email" }
+  ]);
 }
 
 const listExpenses = asyncHandler(async (req, res) => {

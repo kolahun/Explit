@@ -12,4 +12,7 @@ const settlementSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Compound index: computeBalances queries { groupId, status: "settled" } on every load
+settlementSchema.index({ groupId: 1, status: 1 });
+
 module.exports = mongoose.model("Settlement", settlementSchema);

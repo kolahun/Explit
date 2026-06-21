@@ -3,10 +3,11 @@ import { useAuth } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import GroupPage from "./pages/GroupPage";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <main className="page"><p>Loading...</p></main>;
+  if (loading) return <LoadingSpinner fullPage size="lg" text="Signing you in…" />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
