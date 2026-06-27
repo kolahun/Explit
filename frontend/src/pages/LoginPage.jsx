@@ -1,18 +1,28 @@
 import { GoogleLogin } from "@react-oauth/google";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { ArrowRight, LockKeyhole, Mail, UserPlus, WalletCards, Sun, Moon } from "lucide-react";
+import { ArrowRight, LockKeyhole, Mail, UserPlus, WalletCards, Sun, Moon, Link2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
 export default function LoginPage() {
   const { user, loginWithGoogle, loginWithPassword, registerWithPassword } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const joinGroupId = searchParams.get("join") || sessionStorage.getItem("joinAfterLogin");
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  if (user) return <Navigate to="/" replace />;
+  // If already logged in, redirect — to the invite group if there's a pending join
+  if (user) {
+    if (joinGroupId) {
+      sessionStorage.removeItem("joinAfterLogin");
+      return <Navigate to={`/join/${joinGroupId}`} replace />;
+    }
+    return <Navigate to="/" replace />;
+  }
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -93,6 +103,12 @@ export default function LoginPage() {
         </div>
 
         <div className="auth-heading">
+          {joinGroupId && (
+            <div className="invite-banner">
+              <Link2 size={16} />
+              <span>You were invited to join a group — log in or sign up to continue.</span>
+            </div>
+          )}
           <h2>{mode === "signup" ? "Create your account" : "Welcome back"}</h2>
           <p>{mode === "signup" ? "Start managing shared expenses in minutes." : "Log in to continue to your groups."}</p>
         </div>

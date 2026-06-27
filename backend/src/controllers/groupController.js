@@ -173,4 +173,26 @@ const deleteGroup = asyncHandler(async (req, res) => {
   res.json({ id: req.group._id });
 });
 
-module.exports = { listGroups, createGroup, getGroup, addMember, removeMember, deleteGroup };
+// Join via invite link — accessible to any authenticated user (not just members)
+const joinGroup = asyncHandler(async (req, res) => {
+  const group = await Group.findById(req.params.groupId);
+  if (!group) {
+    res.status(404);
+    throw new Error("Group not found or invite link is invalid");
+  }
+
+  const alreadyMember = group.members.some((id) => id.equals(req.user._id));
+  if (alreadyMember) {
+    // Already in — just return the group so frontend can redirect
+    await group.populate("members", "name email");
+    return res.json({ group, alreadyMember: true });
+  }
+
+  group.members.push(req.user._id);
+  await group.save();
+  await group.populate("members", "name email");
+
+  res.json({ group, alreadyMember: false });
+});
+
+module.exports = { listGroups, createGroup, getGroup, addMember, removeMember, deleteGroup, joinGroup };

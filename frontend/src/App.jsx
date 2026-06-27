@@ -3,6 +3,7 @@ import { useAuth } from "./context/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import GroupPage from "./pages/GroupPage";
+import JoinPage from "./pages/JoinPage";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 function ProtectedRoute({ children }) {
@@ -16,6 +17,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/join/:groupId" element={<JoinPage />} />
       <Route
         path="/"
         element={

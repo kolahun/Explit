@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, UserPlus, X } from "lucide-react";
+import { ArrowLeft, Copy, Link2, UserPlus, X } from "lucide-react";
 import { apiRequest } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -25,6 +25,15 @@ export default function GroupPage() {
   const [memberEmail, setMemberEmail] = useState("");
   const [recalculating, setRecalculating] = useState(false);
   const [addingMember, setAddingMember] = useState(false);
+
+  function copyInviteLink() {
+    const url = `${window.location.origin}/join/${groupId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success("Invite link copied! Share it with your friends. 🔗");
+    }).catch(() => {
+      toast.error("Could not copy link — please copy it manually.");
+    });
+  }
 
   // Load all group data in parallel
   async function loadGroupData() {
@@ -226,6 +235,15 @@ export default function GroupPage() {
                   </div>
                 ))}
               </div>
+              <button
+                className="invite-link-button"
+                onClick={copyInviteLink}
+                title="Copy invite link"
+                type="button"
+              >
+                <Link2 size={15} />
+                Copy invite link
+              </button>
             </section>
             <SettlementList
               settlements={settlementData.simplified}
