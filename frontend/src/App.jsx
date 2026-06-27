@@ -5,6 +5,7 @@ import DashboardPage from "./pages/DashboardPage";
 import GroupPage from "./pages/GroupPage";
 import JoinPage from "./pages/JoinPage";
 import LoadingSpinner from "./components/LoadingSpinner";
+import AuroraBackground from "./components/AuroraBackground";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -15,7 +16,9 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <AuroraBackground />
+      <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/join/:groupId" element={<JoinPage />} />
       <Route
@@ -35,5 +38,6 @@ export default function App() {
         }
       />
     </Routes>
+    </>
   );
 }
