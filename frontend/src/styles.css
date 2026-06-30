@@ -2084,9 +2084,77 @@ label {
   100% { opacity: 1; }
 }
 
+
 @media (prefers-reduced-motion: reduce) {
   .star-md, .star-lg {
     animation: none;
   }
 }
 
+/* ========== Mobile Responsiveness ========== */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 12px 16px;
+  }
+
+  .app-header .brand {
+    font-size: 1.2rem;
+  }
+
+  .app-header .user-badge {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .page {
+    padding: 16px 12px;
+  }
+
+  .page-title h1 {
+    font-size: 1.5rem;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar input {
+    width: 100%;
+  }
+
+  .toolbar .btn-create {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .balance-hero {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .premium-group-card {
+    padding: 16px;
+  }
+
+  .expense-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .expense-card-amount {
+    align-self: flex-end;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
