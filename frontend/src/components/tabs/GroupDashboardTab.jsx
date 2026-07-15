@@ -20,7 +20,7 @@ export default function GroupDashboardTab({
 
   return (
     <div className="dashboard-tab">
-      {/* Left Column: Balance + Chart */}
+      {/* Left Column: Balance + Chart + Recent Expenses */}
       <div className="dashboard-main-col">
         <BalanceSummary
           settlementData={settlementData}
@@ -28,11 +28,6 @@ export default function GroupDashboardTab({
           onSettle={onSettle}
         />
         <SpendingByCategoryChart expenses={expenses} />
-      </div>
-
-      {/* Right Column: Add Expense + Recent Expenses */}
-      <div className="dashboard-side-col">
-        <AddExpenseForm group={group} onAdd={onAddExpense} />
         <RecentExpenses
           expenses={expenses}
           group={group}
@@ -41,6 +36,11 @@ export default function GroupDashboardTab({
           onDelete={onDeleteExpense}
           onViewAll={() => setShowAllExpenses(true)}
         />
+      </div>
+
+      {/* Right Column: Add Expense */}
+      <div className="dashboard-side-col">
+        <AddExpenseForm group={group} onAdd={onAddExpense} />
       </div>
 
       {showAllExpenses && (
