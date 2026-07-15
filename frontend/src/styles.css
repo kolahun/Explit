@@ -2334,21 +2334,21 @@ label {
 
 .dashboard-tab {
   display: grid;
-  gap: 24px;
-}
-
-.dashboard-top-row {
-  display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: minmax(0, 1.1fr) 380px;
   gap: 24px;
   align-items: start;
 }
 
-.dashboard-bottom-row {
-  display: grid;
-  grid-template-columns: 1fr 400px;
+.dashboard-main-col {
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  align-items: start;
+}
+
+.dashboard-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .recent-expenses {
@@ -3302,24 +3302,18 @@ label {
    ========================================================= */
 
 @media (max-width: 1024px) {
+  .dashboard-tab {
+    grid-template-columns: 1fr;
+  }
   .summary-cards-grid {
     grid-template-columns: repeat(3, 1fr);
-  }
-
-  .dashboard-bottom-row {
-    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .dashboard-top-row {
-    grid-template-columns: 1fr;
-  }
-
   .insights-grid {
     grid-template-columns: 1fr;
   }
-
   .summary-cards-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -3339,11 +3333,6 @@ label {
 
   .group-tab span {
     display: none;
-  }
-
-  .dashboard-top-row,
-  .dashboard-bottom-row {
-    grid-template-columns: 1fr;
   }
 
   .summary-cards-grid {

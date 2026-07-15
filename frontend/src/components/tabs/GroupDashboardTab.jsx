@@ -20,19 +20,19 @@ export default function GroupDashboardTab({
 
   return (
     <div className="dashboard-tab">
-      {/* Row 1: Balance + Add Expense */}
-      <div className="dashboard-top-row">
+      {/* Left Column: Balance + Chart */}
+      <div className="dashboard-main-col">
         <BalanceSummary
           settlementData={settlementData}
           currentUser={currentUser}
           onSettle={onSettle}
         />
-        <AddExpenseForm group={group} onAdd={onAddExpense} />
+        <SpendingByCategoryChart expenses={expenses} />
       </div>
 
-      {/* Row 2: Chart + Recent Expenses */}
-      <div className="dashboard-bottom-row">
-        <SpendingByCategoryChart expenses={expenses} />
+      {/* Right Column: Add Expense + Recent Expenses */}
+      <div className="dashboard-side-col">
+        <AddExpenseForm group={group} onAdd={onAddExpense} />
         <RecentExpenses
           expenses={expenses}
           group={group}
