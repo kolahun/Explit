@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Copy, Link2, UserPlus, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { apiRequest } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import AppHeader from "../components/AppHeader";
-import AddExpenseForm from "../components/AddExpenseForm";
-import BalanceSummary from "../components/BalanceSummary";
+import GroupTabBar from "../components/GroupTabBar";
 import ExpenseDetailModal from "../components/ExpenseDetailModal";
-import ExpenseList from "../components/ExpenseList";
-import SpendingByCategoryChart from "../components/SpendingByCategoryChart";
-import SettlementList from "../components/SettlementList";
 import LoadingSpinner from "../components/LoadingSpinner";
+import GroupDashboardTab from "../components/tabs/GroupDashboardTab";
+import GroupSettleUpTab from "../components/tabs/GroupSettleUpTab";
+import GroupMembersTab from "../components/tabs/GroupMembersTab";
 
 export default function GroupPage() {
   const { groupId } = useParams();
@@ -25,6 +24,7 @@ export default function GroupPage() {
   const [memberEmail, setMemberEmail] = useState("");
   const [recalculating, setRecalculating] = useState(false);
   const [addingMember, setAddingMember] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   function copyInviteLink() {
     const url = `${window.location.origin}/join/${groupId}`;
@@ -35,7 +35,6 @@ export default function GroupPage() {
     });
   }
 
-  // Load all group data in parallel
   async function loadGroupData() {
     const [groupResponse, expenseResponse, settlementResponse] = await Promise.all([
       apiRequest(`/groups/${groupId}`),
@@ -47,7 +46,6 @@ export default function GroupPage() {
     setSettlementData(settlementResponse);
   }
 
-  // Load only settlement/balance data (after mutations that affect balances)
   async function reloadSettlements() {
     setRecalculating(true);
     try {
@@ -63,59 +61,44 @@ export default function GroupPage() {
   }
 
   useEffect(() => {
-    loadGroupData().catch((err) => {
-      toast.error(err.message);
-    });
+    loadGroupData().catch((err) => toast.error(err.message));
   }, [groupId]);
 
   async function addExpense(payload) {
-    await apiRequest("/expenses", {
-      method: "POST",
-      body: JSON.stringify({ ...payload, groupId })
-    });
-    // Expense added → balances change → reload expenses + settlements
+    await apiRequest("/expenses", { method: "POST", body: JSON.stringify({ ...payload, groupId }) });
     await reloadSettlements();
     toast.success("Expense added!");
   }
 
   async function updateExpense(expenseId, payload) {
-    await apiRequest(`/expenses/${expenseId}`, {
-      method: "PUT",
-      body: JSON.stringify({ ...payload, groupId })
-    });
+    await apiRequest(`/expenses/${expenseId}`, { method: "PUT", body: JSON.stringify({ ...payload, groupId }) });
     await reloadSettlements();
     toast.success("Expense updated.");
   }
 
   async function deleteExpense(expenseId) {
-    // Optimistic: remove from list immediately
     setExpenses((prev) => prev.filter((e) => e._id !== expenseId));
     if (activeExpenseId === expenseId) setActiveExpenseId(null);
     try {
       await apiRequest(`/expenses/${expenseId}?groupId=${groupId}`, { method: "DELETE" });
-      // Reload just settlements (balances changed)
       await reloadSettlements();
       toast.success("Expense deleted.");
     } catch (err) {
-      // Rollback on failure
       await reloadSettlements();
       toast.error(err.message);
     }
   }
 
   async function addComment(expenseId, text) {
-    // Comments don't affect balances — only reload the single expense
     await apiRequest(`/expenses/${expenseId}/comments`, {
       method: "POST",
       body: JSON.stringify({ groupId, text })
     });
-    // Only reload expenses list (not settlements) since balances unchanged
     const expenseResponse = await apiRequest(`/expenses/group/${groupId}`);
     setExpenses(expenseResponse);
   }
 
-  async function addMember(event) {
-    event.preventDefault();
+  async function addMember() {
     setAddingMember(true);
     try {
       const updated = await apiRequest(`/groups/${groupId}/members`, {
@@ -157,7 +140,6 @@ export default function GroupPage() {
     toast.success("Settlement recorded! ✓");
   }
 
-  // Loading state — spinner while group data first loads
   if (!group) {
     return (
       <>
@@ -172,87 +154,71 @@ export default function GroupPage() {
   return (
     <>
       <AppHeader />
-      <main className="page">
+      <main className="page group-page">
+        {/* Back link */}
         <Link className="back-link" to="/">
           <ArrowLeft size={18} />
           Groups
         </Link>
-        <div className="page-title">
-          <h1>{group.name}</h1>
+
+        {/* Group header */}
+        <div className="group-page-header">
+          <div>
+            <h1>{group.name}</h1>
+            <p className="group-page-meta">{group.members.length} member{group.members.length !== 1 ? "s" : ""}</p>
+          </div>
+          {recalculating && (
+            <div className="recalculating-bar">
+              <LoadingSpinner size="sm" />
+              <span>Recalculating…</span>
+            </div>
+          )}
         </div>
 
-        {/* Recalculating indicator */}
-        {recalculating && (
-          <div className="recalculating-bar">
-            <LoadingSpinner size="sm" />
-            <span>Recalculating balances…</span>
-          </div>
-        )}
+        {/* Tab bar — sticky below header */}
+        <GroupTabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <section className="layout">
-          <div className="main-column">
-            <BalanceSummary
+        {/* Tab content */}
+        <div className="tab-content" key={activeTab}>
+          {activeTab === "dashboard" && (
+            <GroupDashboardTab
+              group={group}
+              expenses={expenses}
               settlementData={settlementData}
               currentUser={currentUser}
+              onAddExpense={addExpense}
+              onUpdateExpense={updateExpense}
+              onDeleteExpense={deleteExpense}
+              onOpenExpense={(expense) => setActiveExpenseId(expense._id)}
               onSettle={recordSettlement}
             />
-            <SpendingByCategoryChart expenses={expenses} />
-            <section className="panel">
-              <h2>Expenses</h2>
-              <ExpenseList
-                expenses={expenses}
-                group={group}
-                onDelete={deleteExpense}
-                onOpenExpense={(expense) => setActiveExpenseId(expense._id)}
-                onUpdate={updateExpense}
-              />
-            </section>
-          </div>
-          <aside className="side-column">
-            <AddExpenseForm group={group} onAdd={addExpense} />
-            <section className="panel">
-              <h2>Members</h2>
-              <form className="inline-form" onSubmit={addMember}>
-                <input
-                  type="email"
-                  placeholder="email@example.com"
-                  value={memberEmail}
-                  onChange={(e) => setMemberEmail(e.target.value)}
-                  required
-                  disabled={addingMember}
-                />
-                <button type="submit" title="Add member" disabled={addingMember}>
-                  {addingMember ? <LoadingSpinner size="sm" /> : <UserPlus size={18} />}
-                </button>
-              </form>
-              <div className="member-list scrollable-list">
-                {group.members.map((member) => (
-                  <div className="member-row" key={member._id}>
-                    <span>{member.name}</span>
-                    <button className="icon-button" title="Remove member" onClick={() => removeMember(member._id)}>
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <button
-                className="invite-link-button"
-                onClick={copyInviteLink}
-                title="Copy invite link"
-                type="button"
-              >
-                <Link2 size={15} />
-                Copy invite link
-              </button>
-            </section>
-            <SettlementList
-              settlements={settlementData.simplified}
-              history={settlementData.history}
+          )}
+          {activeTab === "settle" && (
+            <GroupSettleUpTab
+              expenses={expenses}
+              settlementData={settlementData}
+              currentUser={currentUser}
+              group={group}
               onSettle={recordSettlement}
             />
-          </aside>
-        </section>
+          )}
+          {activeTab === "members" && (
+            <GroupMembersTab
+              group={group}
+              expenses={expenses}
+              settlementData={settlementData}
+              currentUser={currentUser}
+              memberEmail={memberEmail}
+              setMemberEmail={setMemberEmail}
+              addingMember={addingMember}
+              onAddMember={addMember}
+              onRemoveMember={removeMember}
+              onCopyInviteLink={copyInviteLink}
+            />
+          )}
+        </div>
       </main>
+
       {activeExpense && (
         <ExpenseDetailModal
           expense={activeExpense}

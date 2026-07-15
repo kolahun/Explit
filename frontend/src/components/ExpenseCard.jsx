@@ -84,26 +84,26 @@ export default function ExpenseCard({ expense, group, onDelete, onOpen, onUpdate
       <div className="grid gap-2">
         <div className="flex flex-wrap items-center gap-2">
           {Array.isArray(expense.paidBy) && expense.paidBy.length > 0 ? (
-            <strong className="text-slate-900 dark:text-slate-100">
+            <strong>
               {expense.paidBy.map((entry) => `${entry.user?.name || "Unknown"} (${moneyFormatter.format(entry.amount)})`).join(", ")}
             </strong>
           ) : (
-            <strong className="text-slate-900 dark:text-slate-100">{expense.payer.name}</strong>
+            <strong>{expense.payer.name}</strong>
           )}
-          <span className="rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
+          <span className="category-badge">
             {expense.category}
           </span>
-          <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-450">
+          <span className="split-method-badge">
             {expense.splitMethod}
           </span>
         </div>
         <p className="text-sm">Split between {expense.splitBetween.map((member) => member.name).join(", ")}</p>
         <button
-          className="w-fit rounded-full border border-indigo-500/20 bg-indigo-500/5 dark:bg-indigo-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300 hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-neutral-950 transition-all duration-200 min-height-auto"
+          className="view-details-btn"
           type="button"
           onClick={() => onOpen(expense)}
         >
-          View details & comments
+          View details &amp; comments
         </button>
       </div>
       <div className="expense-summary">

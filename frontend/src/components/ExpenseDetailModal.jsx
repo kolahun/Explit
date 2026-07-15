@@ -42,7 +42,7 @@ export default function ExpenseDetailModal({ expense, onClose, onAddComment }) {
       <div className="max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[28px] border border-neutral-800 bg-neutral-950 text-white shadow-[0_28px_90px_rgba(0,0,0,0.55)]">
         <div className="flex items-start justify-between border-b border-neutral-800 px-6 py-5">
           <div>
-            <div className="mb-2 inline-flex rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300">
+            <div className="mb-2 inline-flex category-badge">
               {expense.category}
             </div>
             <h2 className="text-2xl font-semibold">{moneyFormatter.format(expense.amount)}</h2>
@@ -63,14 +63,14 @@ export default function ExpenseDetailModal({ expense, onClose, onAddComment }) {
             {Array.isArray(expense.paidBy) && expense.paidBy.length > 0 && (
               <div className="rounded-3xl border border-neutral-800 bg-neutral-900/80 p-5">
                 <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-200">
-                  <Users size={16} className="text-indigo-400" />
+                  <Users size={16} className="accent-icon" />
                   Who paid
                 </div>
                 <div className="grid gap-3">
                   {expense.paidBy.map((entry, index) => (
                     <div key={index} className="flex items-center justify-between rounded-2xl border border-neutral-800 bg-neutral-950/70 px-4 py-3">
                       <div className="font-medium text-white">{entry.user?.name || "Unknown"}</div>
-                      <div className="text-sm font-semibold text-indigo-300">{moneyFormatter.format(entry.amount)}</div>
+                      <div className="text-sm font-semibold accent-amount">{moneyFormatter.format(entry.amount)}</div>
                     </div>
                   ))}
                 </div>
@@ -78,7 +78,7 @@ export default function ExpenseDetailModal({ expense, onClose, onAddComment }) {
             )}
             <div className="rounded-3xl border border-neutral-800 bg-neutral-900/80 p-5">
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-200">
-                <MessageSquare size={16} className="text-indigo-400" />
+                <MessageSquare size={16} className="accent-icon" />
                 Split breakdown
               </div>
               <div className="grid gap-3">
@@ -88,7 +88,7 @@ export default function ExpenseDetailModal({ expense, onClose, onAddComment }) {
                       <div className="font-medium text-white">{share.name}</div>
                       <div className="text-xs text-neutral-500">{share.percentage.toFixed(2)}%</div>
                     </div>
-                    <div className="text-sm font-semibold text-indigo-300">{moneyFormatter.format(share.amount)}</div>
+                    <div className="text-sm font-semibold accent-amount">{moneyFormatter.format(share.amount)}</div>
                   </div>
                 ))}
               </div>
