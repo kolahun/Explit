@@ -54,7 +54,7 @@ export default function TransactionTimeline({ expenses, settlementData }) {
   }
 
   return (
-    <div className="timeline">
+    <div className="timeline scrollable-list">
       {items.map((item, index) => (
         <div className="timeline-entry" key={`${item.type}-${item.id}`}>
           <div className="timeline-left">

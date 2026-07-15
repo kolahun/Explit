@@ -20,7 +20,7 @@ export default function RecentExpenses({ expenses, group, onOpenExpense, onUpdat
       <div className="recent-expenses-header">
         <h2><Clock size={18} /> Recent Activity</h2>
       </div>
-      <div className="stack compact">
+      <div className="stack compact scrollable-list">
         {recent.map((expense) => (
           <ExpenseCard
             key={expense._id}
