@@ -33,9 +33,9 @@ export default function SpendingByCategoryChart({ expenses }) {
       <section className="panel">
         <div className="mb-4">
           <h2>Spending by category</h2>
-          <p className="text-sm text-neutral-400">Add a few categorized expenses to unlock the visual breakdown.</p>
+          <p className="text-sm">Add a few categorized expenses to unlock the visual breakdown.</p>
         </div>
-        <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed border-neutral-800 bg-neutral-900/50 text-sm text-neutral-500">
+        <div className="chart-empty-state text-sm">
           No categorized spending yet.
         </div>
       </section>
@@ -47,15 +47,15 @@ export default function SpendingByCategoryChart({ expenses }) {
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2>Spending by category</h2>
-          <p className="text-sm text-neutral-400">A snapshot of where this group is spending cash.</p>
+          <p className="text-sm">A snapshot of where this group is spending cash.</p>
         </div>
-        <div className="rounded-full bg-amber-500/15 px-4 py-2 text-sm font-semibold text-amber-300">
+        <div className="chart-total-pill">
           {moneyFormatter.format(chartData.reduce((sum, item) => sum + item.value, 0))}
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_280px] lg:items-center">
-        <div className="h-72 rounded-[24px] border border-neutral-300 dark:border-neutral-800 bg-secondary p-3">
+        <div className="chart-canvas">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -74,10 +74,10 @@ export default function SpendingByCategoryChart({ expenses }) {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  background: "#171717",
-                  border: "1px solid #404040",
+                  background: "var(--modal-surface)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "16px",
-                  color: "#fafafa"
+                  color: "var(--text-primary)"
                 }}
                 formatter={(value) => moneyFormatter.format(value)}
               />
@@ -87,15 +87,15 @@ export default function SpendingByCategoryChart({ expenses }) {
 
         <div className="grid gap-3">
           {chartData.map((entry) => (
-            <div key={entry.name} className="flex items-center justify-between rounded-2xl border border-neutral-300 dark:border-neutral-800 bg-secondary px-4 py-3">
+            <div key={entry.name} className="chart-legend-card">
               <div className="flex items-center gap-3">
                 <span className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: categoryPalette[entry.name] }} />
                 <div>
-                  <div className="font-medium text-primary">{entry.name}</div>
+                  <div className="font-medium">{entry.name}</div>
                   <div className="text-xs text-neutral-500">Tracked spend</div>
                 </div>
               </div>
-              <div className="text-sm font-semibold text-primary">{moneyFormatter.format(entry.value)}</div>
+              <div className="text-sm font-semibold">{moneyFormatter.format(entry.value)}</div>
             </div>
           ))}
         </div>

@@ -28,7 +28,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
 
   return (
     <div className="grid gap-4">
-      <div className="flex bg-neutral-100 dark:bg-slate-800 p-1 rounded-xl mb-4">
+      <div className="split-toggle mb-4">
         {SPLIT_METHOD_OPTIONS.map((option) => {
           const isActive = draft.splitMethod === option.value;
           return (
@@ -36,11 +36,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
               key={option.value}
               type="button"
               onClick={() => setSplitMethod(option.value)}
-              className={`flex-1 text-xs font-bold uppercase tracking-wider py-2.5 px-2 rounded-lg transition-all ${
-                isActive
-                  ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "bg-transparent shadow-none text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 hover:bg-neutral-200/50 dark:hover:bg-slate-700/50"
-              }`}
+              className={`split-toggle-button ${isActive ? "active" : ""}`}
             >
               {option.label}
             </button>
@@ -54,7 +50,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
             <h3 className="text-sm font-bold">Included members</h3>
             <p className="text-xs text-neutral-500">Choose who shares this expense before entering allocations.</p>
           </div>
-          <span className="rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">
+          <span className="selection-count-pill">
             {draft.splitBetween.length} selected
           </span>
         </div>
@@ -103,7 +99,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
                   {draft.splitMethod === "EXACT" ? (
                     <div className="flex items-center">
                       <input
-                        className="px-3 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
+                        className="numeric-input px-3 w-[120px] rounded-lg"
                         min="0"
                         step="0.01"
                         type="number"
@@ -116,7 +112,7 @@ export default function SplitOptions({ members, draft, setDraft }) {
                   ) : (
                     <div className="relative flex items-center">
                       <input
-                        className="px-3 pr-6 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
+                        className="numeric-input px-3 pr-6 w-[120px] rounded-lg"
                         min="0"
                         step="0.01"
                         type="number"

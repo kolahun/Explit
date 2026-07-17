@@ -59,7 +59,7 @@ export default function LoginPage() {
   return (
     <main className="login-page relative">
       <button 
-        className="absolute top-6 right-6 p-2 rounded-full bg-neutral-200/50 dark:bg-slate-800/50 hover:bg-neutral-300/50 dark:hover:bg-slate-700/50 transition-colors text-neutral-600 dark:text-neutral-400" 
+        className="icon-button absolute top-6 right-6" 
         onClick={toggleTheme} 
         title={isDark ? "Switch to light theme" : "Switch to dark theme"}
         style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100 }}

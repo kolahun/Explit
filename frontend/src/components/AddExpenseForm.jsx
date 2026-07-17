@@ -59,7 +59,7 @@ export default function AddExpenseForm({ group, onAdd }) {
             placeholder="₹0.00"
             required
             style={{ width: "100%", padding: "10px", borderRadius: "12px" }}
-            className="border border-neutral-300 dark:border-neutral-600 bg-transparent text-lg"
+            className="numeric-input text-lg"
           />
         </div>
       </label>
@@ -102,7 +102,7 @@ export default function AddExpenseForm({ group, onAdd }) {
                   </div>
                   <div className="flex items-center">
                     <input
-                      className="px-3 w-[120px] rounded-lg border border-neutral-300 dark:border-neutral-600 bg-transparent"
+                      className="numeric-input px-3 w-[120px] rounded-lg"
                       min="0"
                       step="0.01"
                       type="number"
